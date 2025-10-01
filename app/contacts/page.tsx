@@ -36,36 +36,38 @@ export default function ContactsPage() {
     : null;
 
   return (
-    <div className="space-y-6">
-      <div className="sm:flex sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Contacts</h1>
-          <p className="mt-2 text-sm text-gray-700">
-            Manage all your business contacts in one place. Search, filter, and organize your contact list.
-          </p>
+    <div className="min-h-screen bg-neutral-light">
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
+        <div className="sm:flex sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Contacts</h1>
+            <p className="mt-2 text-sm text-gray-700">
+              Manage all your business contacts in one place. Search, filter, and organize your contact list.
+            </p>
+          </div>
         </div>
+
+        <ContactsList
+          contacts={contacts}
+          isLoading={isLoading}
+          onDelete={handleDeleteRequest}
+        />
+
+        <ConfirmDialog
+          isOpen={deleteContactId !== null}
+          title="Delete Contact"
+          message={
+            contactToDelete
+              ? `Are you sure you want to delete ${contactToDelete.firstName} ${contactToDelete.lastName}? This action cannot be undone.`
+              : 'Are you sure you want to delete this contact?'
+          }
+          confirmLabel="Delete"
+          cancelLabel="Cancel"
+          variant="danger"
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setDeleteContactId(null)}
+        />
       </div>
-
-      <ContactsList
-        contacts={contacts}
-        isLoading={isLoading}
-        onDelete={handleDeleteRequest}
-      />
-
-      <ConfirmDialog
-        isOpen={deleteContactId !== null}
-        title="Delete Contact"
-        message={
-          contactToDelete
-            ? `Are you sure you want to delete ${contactToDelete.firstName} ${contactToDelete.lastName}? This action cannot be undone.`
-            : 'Are you sure you want to delete this contact?'
-        }
-        confirmLabel="Delete"
-        cancelLabel="Cancel"
-        variant="danger"
-        onConfirm={handleConfirmDelete}
-        onCancel={() => setDeleteContactId(null)}
-      />
     </div>
   );
 }

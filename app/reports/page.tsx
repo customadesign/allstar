@@ -74,61 +74,54 @@ export default function ReportsPage() {
             display: table-footer-group;
           }
         }
-        
-        /* Screen styles for bare layout */
-        @media screen {
-          .reports-print-container {
-            background: white;
-            min-height: 100vh;
-            padding: 2rem;
-          }
-        }
       `}</style>
       
-      <div className="reports-print-container">
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-          <div className="report-widget bg-white rounded-lg shadow-md p-6 border border-gray-200">
-            <h3 className="text-sm font-medium text-gray-600 mb-2">Total Jobs</h3>
-            <p className="text-3xl font-bold text-primary">{allJobs.length}</p>
+      <div className="min-h-screen bg-neutral-light">
+        <div className="max-w-7xl mx-auto p-6 space-y-6 reports-print-container">
+          {/* Summary Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <div className="report-widget bg-white rounded-lg shadow-md p-6 border border-gray-200">
+              <h3 className="text-sm font-medium text-gray-600 mb-2">Total Jobs</h3>
+              <p className="text-3xl font-bold text-primary">{allJobs.length}</p>
+            </div>
+            <div className="report-widget bg-white rounded-lg shadow-md p-6 border border-gray-200">
+              <h3 className="text-sm font-medium text-gray-600 mb-2">Active Jobs</h3>
+              <p className="text-3xl font-bold text-success">
+                {allJobs.filter(j => j.status === 'active').length}
+              </p>
+            </div>
+            <div className="report-widget bg-white rounded-lg shadow-md p-6 border border-gray-200">
+              <h3 className="text-sm font-medium text-gray-600 mb-2">Total Value</h3>
+              <p className="text-3xl font-bold text-gray-900">
+                ${Math.round(allJobs.reduce((sum, j) => sum + (j.value || 0), 0)).toLocaleString()}
+              </p>
+            </div>
+            <div className="report-widget bg-white rounded-lg shadow-md p-6 border border-gray-200">
+              <h3 className="text-sm font-medium text-gray-600 mb-2">Avg Job Value</h3>
+              <p className="text-3xl font-bold text-gray-900">
+                ${allJobs.length > 0 ? Math.round(allJobs.reduce((sum, j) => sum + (j.value || 0), 0) / allJobs.length).toLocaleString() : 0}
+              </p>
+            </div>
           </div>
-          <div className="report-widget bg-white rounded-lg shadow-md p-6 border border-gray-200">
-            <h3 className="text-sm font-medium text-gray-600 mb-2">Active Jobs</h3>
-            <p className="text-3xl font-bold text-success">
-              {allJobs.filter(j => j.status === 'active').length}
-            </p>
-          </div>
-          <div className="report-widget bg-white rounded-lg shadow-md p-6 border border-gray-200">
-            <h3 className="text-sm font-medium text-gray-600 mb-2">Total Value</h3>
-            <p className="text-3xl font-bold text-gray-900">
-              ${Math.round(allJobs.reduce((sum, j) => sum + (j.value || 0), 0)).toLocaleString()}
-            </p>
-          </div>
-          <div className="report-widget bg-white rounded-lg shadow-md p-6 border border-gray-200">
-            <h3 className="text-sm font-medium text-gray-600 mb-2">Avg Job Value</h3>
-            <p className="text-3xl font-bold text-gray-900">
-              ${allJobs.length > 0 ? Math.round(allJobs.reduce((sum, j) => sum + (j.value || 0), 0) / allJobs.length).toLocaleString() : 0}
-            </p>
-          </div>
-        </div>
 
-        {/* Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {/* Charts */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div className="report-widget">
+              <RevenueChart revenueHistory={dashboardData.revenueHistory} />
+            </div>
+            <div className="report-widget">
+              <JobCompletionChart jobs={allJobs} />
+            </div>
+          </div>
+
+          <div className="report-widget mb-6">
+            <ProfitabilityChart jobs={allJobs} />
+          </div>
+
+          {/* Data Table */}
           <div className="report-widget">
-            <RevenueChart revenueHistory={dashboardData.revenueHistory} />
+            <ReportsTable jobs={allJobs} />
           </div>
-          <div className="report-widget">
-            <JobCompletionChart jobs={allJobs} />
-          </div>
-        </div>
-
-        <div className="report-widget mb-6">
-          <ProfitabilityChart jobs={allJobs} />
-        </div>
-
-        {/* Data Table */}
-        <div className="report-widget">
-          <ReportsTable jobs={allJobs} />
         </div>
       </div>
     </>
