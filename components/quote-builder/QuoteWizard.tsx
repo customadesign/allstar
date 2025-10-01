@@ -56,8 +56,8 @@ export default function QuoteWizard({ formData, setFormData, pricing }: QuoteWiz
 
   const nextStep = () => {
     // Validate current step
-    const validationErrors = validateQuoteForm(formData);
-    if (validationErrors.length > 0 && currentStep < 3) {
+    const validationErrors = validateQuoteForm(formData, currentStep);
+    if (validationErrors.length > 0) {
       setErrors(validationErrors);
       return;
     }

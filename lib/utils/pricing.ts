@@ -164,14 +164,24 @@ export function formatCurrency(amount: number): string {
 /**
  * Validate form data for calculations
  */
-export function validateQuoteForm(formData: QuoteFormData): string[] {
+export function validateQuoteForm(formData: QuoteFormData, currentStep?: number): string[] {
   const errors: string[] = [];
   
-  if (formData.width <= 0) errors.push('Width must be greater than 0');
-  if (formData.height <= 0) errors.push('Height must be greater than 0');
-  if (formData.quantity <= 0) errors.push('Quantity must be at least 1');
-  if (!formData.material) errors.push('Please select a material');
-  if (!formData.finish) errors.push('Please select a finish');
+  // Step 1: Dimensions and quantity
+  if (!currentStep || currentStep === 1) {
+    if (formData.width <= 0) errors.push('Width must be greater than 0');
+    if (formData.height <= 0) errors.push('Height must be greater than 0');
+    if (formData.quantity <= 0) errors.push('Quantity must be at least 1');
+  }
+  
+  // Step 2: Material selection
+  if (!currentStep || currentStep === 2) {
+    if (!formData.material) errors.push('Please select a material');
+    if (!formData.finish) errors.push('Please select a finish');
+  }
+  
+  // Step 3: Options (all optional, no validation needed)
+  // Step 4: Review (no validation needed)
   
   return errors;
 }
