@@ -11,6 +11,8 @@ export default function Navigation() {
     { href: '/', label: 'Home' },
     { href: '/dashboard', label: 'Dashboard' },
     { href: '/quote-builder', label: 'Quote Builder' },
+    { href: '/contacts', label: 'Contacts' },
+    { href: '/companies', label: 'Companies' },
     { href: '/kanban', label: 'Production Board' },
     { href: '/pricing', label: 'Pricing Engine' },
     { href: '/reports', label: 'Reports' },
@@ -35,7 +37,7 @@ export default function Navigation() {
           {/* Nav Links */}
           <div className="hidden md:flex items-center space-x-1">
             {navItems.map((item) => {
-              const isActive = pathname === item.href;
+              const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
               return (
                 <Link
                   key={item.href}

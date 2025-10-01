@@ -1,0 +1,97 @@
+# Task ID: 2
+# Title: Implement Scaling Algorithm
+# Status: done
+# Dependencies: 1
+# Priority: high
+# Description: Develop the proportional scaling algorithm that maintains aspect ratio and properly sizes the sign within the viewBox constraints.
+# Details:
+Enhance the SignPreview component with scaling logic:
+
+```typescript
+const SignPreview: React.FC<SignPreviewProps> = ({ width, height, unit }) => {
+  // Validation code from Task 1
+  
+  // Calculate aspect ratio and dimensions
+  const aspectRatio = width / height;
+  
+  // Determine optimal scaling (max size 160 units, min 28 units)
+  let scaledWidth, scaledHeight;
+  
+  if (aspectRatio >= 1) { // Landscape or square
+    scaledWidth = Math.min(160, Math.max(28, 160));
+    scaledHeight = scaledWidth / aspectRatio;
+    
+    // Ensure minimum height
+    if (scaledHeight < 28) {
+      scaledHeight = 28;
+      scaledWidth = scaledHeight * aspectRatio;
+    }
+  } else { // Portrait
+    scaledHeight = Math.min(160, Math.max(28, 160));
+    scaledWidth = scaledHeight * aspectRatio;
+    
+    // Ensure minimum width
+    if (scaledWidth < 28) {
+      scaledWidth = 28;
+      scaledHeight = scaledWidth / aspectRatio;
+    }
+  }
+  
+  // Calculate position to center in viewBox
+  const xPosition = (220 - scaledWidth) / 2;
+  const yPosition = (220 - scaledHeight) / 2;
+  
+  return (
+    <div className="sign-preview-container">
+      <svg 
+        viewBox="0 0 220 220" 
+        xmlns="http://www.w3.org/2000/svg"
+        className="sign-preview"
+      >
+        {/* Sign rectangle with rounded corners */}
+        <rect
+          x={xPosition}
+          y={yPosition}
+          width={scaledWidth}
+          height={scaledHeight}
+          rx="8"
+          fill="white"
+          stroke="#1E3A8A"
+          strokeWidth="2"
+          className="sign-shape"
+        />
+        {/* Labels and guides will be added in Task 3 */}
+      </svg>
+    </div>
+  );
+};
+```
+
+Add transition styling for smooth dimension changes:
+
+```typescript
+const StyledRect = styled.rect`
+  transition: all 200ms ease-out;
+`;
+```
+
+Implement a custom hook for memoizing calculations to optimize performance:
+
+```typescript
+function useSignDimensions(width: number, height: number) {
+  return useMemo(() => {
+    // Move calculation logic here
+    // Return calculated dimensions and positions
+    return { scaledWidth, scaledHeight, xPosition, yPosition };
+  }, [width, height]);
+}
+```
+
+# Test Strategy:
+1. Unit test the scaling algorithm with various dimension combinations
+2. Test landscape, portrait, and square sign dimensions
+3. Verify minimum dimensions (28 units) are respected
+4. Confirm maximum dimensions (160 units) are not exceeded
+5. Test that the sign is properly centered in the viewBox
+6. Verify aspect ratio is maintained during scaling
+7. Test edge cases (very small or large dimensions, extreme aspect ratios)

@@ -1,0 +1,80 @@
+# Task ID: 1
+# Title: Create SignPreview Component Structure
+# Status: done
+# Dependencies: None
+# Priority: high
+# Description: Develop the core SignPreview component that accepts width, height, and unit as props and renders an SVG-based preview.
+# Details:
+Create a new React component with TypeScript:
+
+```typescript
+interface SignPreviewProps {
+  width: number;
+  height: number;
+  unit: string;
+}
+
+const SignPreview: React.FC<SignPreviewProps> = ({ width, height, unit }) => {
+  // Validate dimensions
+  if (width <= 0 || height <= 0) {
+    return <div className="sign-preview-error">Invalid dimensions</div>;
+  }
+
+  // Basic SVG structure with 220x220 viewBox
+  return (
+    <div className="sign-preview-container">
+      <svg 
+        viewBox="0 0 220 220" 
+        xmlns="http://www.w3.org/2000/svg"
+        className="sign-preview"
+      >
+        {/* Sign rectangle will be added in Task 2 */}
+        {/* Labels and guides will be added in Task 3 */}
+      </svg>
+    </div>
+  );
+};
+
+export default SignPreview;
+```
+
+Add basic styling with styled-components:
+
+```typescript
+const PreviewContainer = styled.div`
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+  transition: all 200ms ease-out;
+`;
+
+const StyledSVG = styled.svg`
+  width: 100%;
+  height: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background-color: #f9fafb;
+`;
+```
+
+Integrate the component into the existing QuoteWizard Step 1, replacing the static preview placeholder:
+
+```typescript
+// In QuoteWizard Step 1
+import SignPreview from './SignPreview';
+
+// Within the render method
+<SignPreview 
+  width={formState.width} 
+  height={formState.height} 
+  unit={formState.unit} 
+/>
+```
+
+# Test Strategy:
+1. Unit test the component with various valid and invalid props combinations
+2. Verify component renders without errors
+3. Check that error state is displayed when invalid dimensions are provided
+4. Confirm SVG viewBox is correctly set to 220x220
+5. Verify component integration in QuoteWizard Step 1
+6. Test that component receives updates from form state

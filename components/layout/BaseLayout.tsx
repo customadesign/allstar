@@ -13,6 +13,8 @@ export default function BaseLayout({ children }: BaseLayoutProps) {
   const navigation = [
     { name: 'Dashboard', href: '/' },
     { name: 'Quote Builder', href: '/quote-builder' },
+    { name: 'Contacts', href: '/contacts' },
+    { name: 'Companies', href: '/companies' },
     { name: 'Job Board', href: '/job-board' },
     { name: 'Pricing', href: '/pricing' },
     { name: 'Reports', href: '/reports' },

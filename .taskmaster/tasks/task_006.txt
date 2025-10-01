@@ -1,0 +1,11 @@
+# Task ID: 6
+# Title: Update BaseLayout navigation for Contacts and Companies
+# Status: pending
+# Dependencies: 5
+# Priority: high
+# Description: Modify the BaseLayout component to add navigation items for Contacts and Companies, ensuring they link to the correct routes and maintain consistent styling in both desktop and mobile views.
+# Details:
+
+
+# Test Strategy:
+

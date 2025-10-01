@@ -1,0 +1,126 @@
+# Task ID: 3
+# Title: Add Visual Elements and Labels
+# Status: done
+# Dependencies: 2
+# Priority: medium
+# Description: Implement the dimension guides, labels, and formatting to provide clear visual feedback on sign dimensions.
+# Details:
+Enhance the SignPreview component with visual elements:
+
+```typescript
+import { useMemo } from 'react';
+
+// Number formatting utility
+const formatNumber = (value: number): string => {
+  const formatter = new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
+  });
+  
+  return formatter.format(value);
+};
+
+const SignPreview: React.FC<SignPreviewProps> = ({ width, height, unit }) => {
+  // Previous code from Tasks 1-2
+  
+  // Format dimension labels
+  const formattedWidth = formatNumber(width);
+  const formattedHeight = formatNumber(height);
+  const centralLabel = `${formattedWidth} × ${formattedHeight} ${unit}`;
+  
+  return (
+    <div className="sign-preview-container">
+      <svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+        {/* Sign rectangle from Task 2 */}
+        
+        {/* Central dimension label */}
+        <text
+          x="110"
+          y="110"
+          textAnchor="middle"
+          dominantBaseline="middle"
+          fill="#1E3A8A"
+          fontSize="14"
+          fontWeight="500"
+          className="central-label"
+        >
+          {centralLabel}
+        </text>
+        
+        {/* Width guide (bottom) */}
+        <line
+          x1={xPosition}
+          y1={yPosition + scaledHeight + 10}
+          x2={xPosition + scaledWidth}
+          y2={yPosition + scaledHeight + 10}
+          stroke="#1E3A8A"
+          strokeWidth="1"
+          strokeDasharray="4 2"
+          className="guide-line"
+        />
+        
+        {/* Width label */}
+        <text
+          x={xPosition + scaledWidth / 2}
+          y={yPosition + scaledHeight + 25}
+          textAnchor="middle"
+          fill="#1E3A8A"
+          fontSize="12"
+          className="dimension-label"
+        >
+          {`${formattedWidth} ${unit}`}
+        </text>
+        
+        {/* Height guide (right) */}
+        <line
+          x1={xPosition + scaledWidth + 10}
+          y1={yPosition}
+          x2={xPosition + scaledWidth + 10}
+          y2={yPosition + scaledHeight}
+          stroke="#1E3A8A"
+          strokeWidth="1"
+          strokeDasharray="4 2"
+          className="guide-line"
+        />
+        
+        {/* Height label */}
+        <text
+          x={xPosition + scaledWidth + 25}
+          y={yPosition + scaledHeight / 2}
+          textAnchor="middle"
+          dominantBaseline="middle"
+          fill="#1E3A8A"
+          fontSize="12"
+          transform={`rotate(90, ${xPosition + scaledWidth + 25}, ${yPosition + scaledHeight / 2})`}
+          className="dimension-label"
+        >
+          {`${formattedHeight} ${unit}`}
+        </text>
+      </svg>
+    </div>
+  );
+};
+```
+
+Add additional styling for the visual elements:
+
+```typescript
+const StyledText = styled.text`
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: all 200ms ease-out;
+`;
+
+const GuideLine = styled.line`
+  transition: all 200ms ease-out;
+`;
+```
+
+# Test Strategy:
+1. Test number formatting with various inputs (integers, decimals, large numbers)
+2. Verify central label displays correctly with proper formatting
+3. Test guide lines positioning for different sign dimensions
+4. Confirm external dimension labels are correctly positioned and formatted
+5. Verify text readability at various sign sizes
+6. Test that all elements transition smoothly during dimension changes
+7. Verify correct use of brand colors (#1E3A8A)
+8. Test with different unit types (inches, feet, cm, etc.)

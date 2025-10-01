@@ -1,0 +1,11 @@
+# Task ID: 11
+# Title: Build ContactForm with React Hook Form and Zod
+# Status: pending
+# Dependencies: 5, 7
+# Priority: high
+# Description: Create a reusable ContactForm component that handles both create and edit flows, implementing React Hook Form with Zod validation, including a tags multi-select and company autocomplete field.
+# Details:
+
+
+# Test Strategy:
+

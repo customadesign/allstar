@@ -1,0 +1,145 @@
+# Task ID: 4
+# Title: Performance Optimization and Browser Testing
+# Status: done
+# Dependencies: 3
+# Priority: medium
+# Description: Optimize the component for real-time updates, implement smooth transitions, and ensure cross-browser compatibility.
+# Details:
+Optimize the SignPreview component for performance:
+
+```typescript
+import React, { useMemo, useCallback } from 'react';
+import styled from 'styled-components';
+
+const SignPreview: React.FC<SignPreviewProps> = React.memo(({ width, height, unit }) => {
+  // Memoize calculations to prevent unnecessary re-renders
+  const { 
+    scaledWidth, 
+    scaledHeight, 
+    xPosition, 
+    yPosition,
+    formattedWidth,
+    formattedHeight,
+    centralLabel
+  } = useMemo(() => {
+    // Move all calculations here from previous tasks
+    // Return all computed values
+    return { 
+      scaledWidth, 
+      scaledHeight, 
+      xPosition, 
+      yPosition,
+      formattedWidth: formatNumber(width),
+      formattedHeight: formatNumber(height),
+      centralLabel: `${formatNumber(width)} × ${formatNumber(height)} ${unit}`
+    };
+  }, [width, height, unit]);
+  
+  // Memoize the SVG elements to prevent unnecessary re-renders
+  const signRectangle = useMemo(() => (
+    <StyledRect
+      x={xPosition}
+      y={yPosition}
+      width={scaledWidth}
+      height={scaledHeight}
+      rx="8"
+      fill="white"
+      stroke="#1E3A8A"
+      strokeWidth="2"
+      className="sign-shape"
+    />
+  ), [xPosition, yPosition, scaledWidth, scaledHeight]);
+  
+  // Similarly memoize other SVG elements
+  
+  return (
+    <PreviewContainer>
+      <StyledSVG viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+        {signRectangle}
+        {/* Other memoized elements */}
+      </StyledSVG>
+    </PreviewContainer>
+  );
+});
+
+// Add browser compatibility CSS
+const PreviewContainer = styled.div`
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+`;
+
+const StyledSVG = styled.svg`
+  width: 100%;
+  height: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background-color: #f9fafb;
+  
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      transition: none !important;
+    }
+  }
+`;
+```
+
+Implement debouncing for dimension input changes to prevent excessive re-renders:
+
+```typescript
+// In the parent component that manages form state
+import { useDebounce } from 'use-debounce';
+
+function QuoteWizardStep1() {
+  const [dimensions, setDimensions] = useState({ width: 48, height: 24, unit: 'in' });
+  
+  // Debounce dimension changes for smoother updates
+  const [debouncedDimensions] = useDebounce(dimensions, 100);
+  
+  return (
+    <div>
+      {/* Form inputs */}
+      <SignPreview 
+        width={debouncedDimensions.width} 
+        height={debouncedDimensions.height} 
+        unit={debouncedDimensions.unit} 
+      />
+    </div>
+  );
+}
+```
+
+Add browser compatibility testing setup:
+
+```javascript
+// browser-compatibility.test.js
+import { render } from '@testing-library/react';
+import SignPreview from './SignPreview';
+
+describe('SignPreview Browser Compatibility', () => {
+  test('renders correctly with vendor prefixes', () => {
+    const { container } = render(
+      <SignPreview width={48} height={24} unit="in" />
+    );
+    
+    // Check for critical rendering elements
+    expect(container.querySelector('svg')).toBeInTheDocument();
+    expect(container.querySelector('.sign-shape')).toBeInTheDocument();
+    expect(container.querySelector('.central-label')).toBeInTheDocument();
+  });
+});
+```
+
+# Test Strategy:
+1. Measure render performance using React DevTools Profiler
+2. Test real-time updates with rapid dimension changes
+3. Verify smooth transitions with 200ms ease-out animations
+4. Test cross-browser compatibility on Chrome 90+, Firefox 88+, Safari 14+, and Edge 90+
+5. Verify accessibility features (SVG aria attributes, color contrast)
+6. Test with reduced motion preferences
+7. Verify performance on lower-end devices
+8. Conduct end-to-end testing in the QuoteWizard flow
+9. Verify no regression in existing functionality
+10. Test with various screen sizes and resolutions
