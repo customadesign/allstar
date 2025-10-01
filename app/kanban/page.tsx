@@ -9,6 +9,9 @@ import type { KanbanCard } from '@/lib/mock-data/kanban';
 
 type KanbanView = 'board' | 'stack' | 'card';
 
+// Prevent static generation for this client component page
+export const dynamic = 'force-dynamic';
+
 export default function KanbanPage() {
   const [allCards] = useState<KanbanCard[]>(() => generateKanbanCards(200));
   const [searchQuery, setSearchQuery] = useState('');
