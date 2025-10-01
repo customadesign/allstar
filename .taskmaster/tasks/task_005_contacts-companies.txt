@@ -1,0 +1,337 @@
+# Task ID: 5
+# Title: Build Contacts List View Component
+# Status: pending
+# Dependencies: 1, 3
+# Priority: high
+# Description: Create a ContactsList.tsx component that displays contact data in a table format with pagination, search, filtering, and sorting capabilities, using localStorage for mock data storage.
+# Details:
+This task involves building a comprehensive Contacts List View component with multiple interactive features:
+
+1. Create `components/contacts/ContactsList.tsx` with the following structure:
+   ```tsx
+   import { useState, useEffect } from 'react';
+   import { SearchBar, Pagination, LoadingSpinner, EmptyState } from '../shared';
+   
+   interface Contact {
+     id: string;
+     firstName: string;
+     lastName: string;
+     email: string;
+     phone: string;
+     company?: string;
+     status: 'active' | 'inactive' | 'lead';
+     tags?: string[];
+     lastContactedAt?: Date;
+     createdAt: Date;
+   }
+   
+   interface ContactsListProps {
+     initialContacts?: Contact[];
+     isLoading?: boolean;
+     error?: string;
+   }
+   
+   export default function ContactsList({ 
+     initialContacts = [], 
+     isLoading = false,
+     error = ''
+   }: ContactsListProps) {
+     // State management
+     const [contacts, setContacts] = useState<Contact[]>([]);
+     const [filteredContacts, setFilteredContacts] = useState<Contact[]>([]);
+     const [searchTerm, setSearchTerm] = useState('');
+     const [currentPage, setCurrentPage] = useState(1);
+     const [itemsPerPage] = useState(10);
+     const [sortField, setSortField] = useState<keyof Contact>('lastName');
+     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+     const [statusFilter, setStatusFilter] = useState<string>('all');
+     
+     // Load mock data from localStorage or initialize with sample data
+     useEffect(() => {
+       const storedContacts = localStorage.getItem('contacts');
+       if (storedContacts) {
+         setContacts(JSON.parse(storedContacts));
+       } else if (initialContacts.length > 0) {
+         setContacts(initialContacts);
+       } else {
+         // Generate mock data if none exists
+         const mockContacts = generateMockContacts(25);
+         setContacts(mockContacts);
+         localStorage.setItem('contacts', JSON.stringify(mockContacts));
+       }
+     }, [initialContacts]);
+     
+     // Filter, sort, and paginate contacts
+     useEffect(() => {
+       let result = [...contacts];
+       
+       // Apply search filter
+       if (searchTerm) {
+         result = result.filter(contact => 
+           contact.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+           contact.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+           contact.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+           contact.company?.toLowerCase().includes(searchTerm.toLowerCase())
+         );
+       }
+       
+       // Apply status filter
+       if (statusFilter !== 'all') {
+         result = result.filter(contact => contact.status === statusFilter);
+       }
+       
+       // Apply sorting
+       result.sort((a, b) => {
+         const aValue = a[sortField];
+         const bValue = b[sortField];
+         
+         if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+         if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+         return 0;
+       });
+       
+       setFilteredContacts(result);
+     }, [contacts, searchTerm, statusFilter, sortField, sortDirection]);
+     
+     // Calculate pagination
+     const indexOfLastItem = currentPage * itemsPerPage;
+     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+     const currentContacts = filteredContacts.slice(indexOfFirstItem, indexOfLastItem);
+     const totalPages = Math.ceil(filteredContacts.length / itemsPerPage);
+     
+     // Handle sort toggle
+     const handleSort = (field: keyof Contact) => {
+       if (field === sortField) {
+         setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+       } else {
+         setSortField(field);
+         setSortDirection('asc');
+       }
+     };
+     
+     // Generate mock data function
+     function generateMockContacts(count: number): Contact[] {
+       // Implementation of mock data generation
+       // ...
+     }
+     
+     if (isLoading) return <LoadingSpinner />;
+     if (error) return <div className="text-red-500">Error: {error}</div>;
+     if (contacts.length === 0) return <EmptyState message="No contacts found" />;
+     
+     return (
+       <div className="w-full">
+         <div className="flex justify-between items-center mb-4">
+           <SearchBar 
+             placeholder="Search contacts..." 
+             onSearch={value => setSearchTerm(value)}
+           />
+           <div className="flex space-x-2">
+             <select
+               className="border rounded px-2 py-1"
+               value={statusFilter}
+               onChange={e => setStatusFilter(e.target.value)}
+             >
+               <option value="all">All Statuses</option>
+               <option value="active">Active</option>
+               <option value="inactive">Inactive</option>
+               <option value="lead">Lead</option>
+             </select>
+           </div>
+         </div>
+         
+         <div className="overflow-x-auto">
+           <table className="min-w-full bg-white border border-gray-200">
+             <thead>
+               <tr className="bg-gray-100">
+                 <th className="px-4 py-2 cursor-pointer" onClick={() => handleSort('lastName')}>
+                   Name {sortField === 'lastName' && (sortDirection === 'asc' ? '↑' : '↓')}
+                 </th>
+                 <th className="px-4 py-2 cursor-pointer" onClick={() => handleSort('email')}>
+                   Email {sortField === 'email' && (sortDirection === 'asc' ? '↑' : '↓')}
+                 </th>
+                 <th className="px-4 py-2 cursor-pointer" onClick={() => handleSort('company')}>
+                   Company {sortField === 'company' && (sortDirection === 'asc' ? '↑' : '↓')}
+                 </th>
+                 <th className="px-4 py-2 cursor-pointer" onClick={() => handleSort('status')}>
+                   Status {sortField === 'status' && (sortDirection === 'asc' ? '↑' : '↓')}
+                 </th>
+                 <th className="px-4 py-2 cursor-pointer" onClick={() => handleSort('lastContactedAt')}>
+                   Last Contacted {sortField === 'lastContactedAt' && (sortDirection === 'asc' ? '↑' : '↓')}
+                 </th>
+                 <th className="px-4 py-2">Actions</th>
+               </tr>
+             </thead>
+             <tbody>
+               {currentContacts.map(contact => (
+                 <tr key={contact.id} className="border-t hover:bg-gray-50">
+                   <td className="px-4 py-2">{contact.firstName} {contact.lastName}</td>
+                   <td className="px-4 py-2">{contact.email}</td>
+                   <td className="px-4 py-2">{contact.company || '-'}</td>
+                   <td className="px-4 py-2">
+                     <span className={`px-2 py-1 rounded text-xs ${
+                       contact.status === 'active' ? 'bg-green-100 text-green-800' :
+                       contact.status === 'inactive' ? 'bg-gray-100 text-gray-800' :
+                       'bg-blue-100 text-blue-800'
+                     }`}>
+                       {contact.status}
+                     </span>
+                   </td>
+                   <td className="px-4 py-2">
+                     {contact.lastContactedAt 
+                       ? new Date(contact.lastContactedAt).toLocaleDateString() 
+                       : 'Never'}
+                   </td>
+                   <td className="px-4 py-2">
+                     <button className="text-blue-500 hover:text-blue-700 mr-2">
+                       Edit
+                     </button>
+                     <button className="text-red-500 hover:text-red-700">
+                       Delete
+                     </button>
+                   </td>
+                 </tr>
+               ))}
+             </tbody>
+           </table>
+         </div>
+         
+         {totalPages > 1 && (
+           <div className="mt-4">
+             <Pagination 
+               currentPage={currentPage}
+               totalPages={totalPages}
+               onPageChange={setCurrentPage}
+             />
+           </div>
+         )}
+       </div>
+     );
+   }
+   ```
+
+2. Create a helper function to generate mock contact data:
+   ```tsx
+   function generateMockContacts(count: number): Contact[] {
+     const statuses: Array<'active' | 'inactive' | 'lead'> = ['active', 'inactive', 'lead'];
+     const companies = ['Acme Inc', 'TechCorp', 'Global Solutions', 'Innovate LLC', 'Summit Partners'];
+     const tags = ['client', 'prospect', 'partner', 'vendor', 'influencer', 'investor'];
+     
+     return Array.from({ length: count }, (_, i) => {
+       const firstName = `FirstName${i + 1}`;
+       const lastName = `LastName${i + 1}`;
+       
+       return {
+         id: `contact-${i + 1}`,
+         firstName,
+         lastName,
+         email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@example.com`,
+         phone: `555-${String(100 + i).padStart(3, '0')}-${String(1000 + i).padStart(4, '0')}`,
+         company: Math.random() > 0.3 ? companies[Math.floor(Math.random() * companies.length)] : undefined,
+         status: statuses[Math.floor(Math.random() * statuses.length)],
+         tags: Math.random() > 0.5 
+           ? Array.from(
+               { length: Math.floor(Math.random() * 3) + 1 }, 
+               () => tags[Math.floor(Math.random() * tags.length)]
+             )
+           : undefined,
+         lastContactedAt: Math.random() > 0.3 
+           ? new Date(Date.now() - Math.floor(Math.random() * 90) * 24 * 60 * 60 * 1000) 
+           : undefined,
+         createdAt: new Date(Date.now() - Math.floor(Math.random() * 365) * 24 * 60 * 60 * 1000)
+       };
+     });
+   }
+   ```
+
+3. Create a simple page component to display the contacts list at `app/contacts/page.tsx`:
+   ```tsx
+   import ContactsList from '@/components/contacts/ContactsList';
+   
+   export default function ContactsPage() {
+     return (
+       <div className="container mx-auto px-4 py-8">
+         <h1 className="text-2xl font-bold mb-6">Contacts</h1>
+         <ContactsList />
+       </div>
+     );
+   }
+   ```
+
+4. Implement localStorage persistence:
+   - The component should check localStorage for existing contacts data on mount
+   - If no data exists, generate mock data and store it in localStorage
+   - Ensure proper data serialization/deserialization for dates
+
+5. Implement all interactive features:
+   - Searching: Filter contacts by name, email, or company
+   - Filtering: Allow filtering by contact status
+   - Sorting: Enable sorting by clicking column headers
+   - Pagination: Show a limited number of contacts per page with navigation
+
+6. Ensure the component is responsive and works well on mobile devices by:
+   - Using responsive table design or card-based layout on small screens
+   - Adjusting pagination controls for touch interfaces
+   - Ensuring filter controls are accessible on mobile
+
+# Test Strategy:
+To verify the correct implementation of the Contacts List View component:
+
+1. Component Structure Verification:
+   - Confirm the ContactsList.tsx file exists in the components/contacts/ directory:
+     ```bash
+     ls -la components/contacts/ContactsList.tsx
+     ```
+   - Verify the page component exists:
+     ```bash
+     ls -la app/contacts/page.tsx
+     ```
+
+2. Functionality Testing:
+   - Navigate to the /contacts route in the application
+   - Verify that mock data is displayed in a table format
+   - Test the search functionality:
+     * Enter a search term in the search bar
+     * Confirm that results are filtered correctly based on name, email, or company
+     * Clear the search and verify all contacts are shown again
+   - Test the status filter:
+     * Select each status option from the dropdown (All, Active, Inactive, Lead)
+     * Verify that only contacts with the selected status are displayed
+   - Test the sorting functionality:
+     * Click on each column header
+     * Verify that the list sorts correctly in ascending order
+     * Click again on the same header and verify it sorts in descending order
+   - Test pagination:
+     * Verify that only the specified number of items per page are shown
+     * Navigate through pages using the pagination controls
+     * Confirm that the correct set of contacts is displayed on each page
+
+3. Data Persistence Testing:
+   - Open the application in a new browser tab
+   - Navigate to the contacts page
+   - Verify that the same contact data is displayed (loaded from localStorage)
+   - Open browser developer tools and check localStorage:
+     ```javascript
+     // In browser console
+     const storedContacts = localStorage.getItem('contacts');
+     console.log(JSON.parse(storedContacts));
+     ```
+   - Confirm that the data structure matches the Contact interface
+
+4. Responsive Design Testing:
+   - Test the component on various screen sizes (desktop, tablet, mobile)
+   - Verify that the table/list remains readable on small screens
+   - Confirm that all interactive elements (search, filters, pagination) are usable on touch devices
+
+5. Integration Testing:
+   - Verify that the component correctly uses the shared UI components:
+     * SearchBar for filtering
+     * Pagination for navigating between pages
+     * LoadingSpinner for loading states
+     * EmptyState for when no contacts are found
+
+6. Edge Case Testing:
+   - Test with empty data (clear localStorage and refresh)
+   - Test with a very large number of contacts to verify performance
+   - Test with long text values to ensure the UI handles them gracefully
+   - Test search with special characters and case variations

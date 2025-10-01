@@ -1,0 +1,127 @@
+# Product Requirements Document: Quote Builder Dynamic Preview Enhancement
+
+## Overview
+Enhance the All-Star Signs Quote Builder application with a real-time, dynamic sign preview that updates immediately as users modify dimension inputs, providing instant visual feedback without requiring page refresh or additional user actions.
+
+## Objective
+Implement a responsive sign preview component that scales proportionally based on user-entered dimensions, displays accurate dimensional labels, and maintains a professional appearance with smooth transitions.
+
+## Feature Requirements
+
+### 1. Dynamic Preview Component
+- Create a reusable `SignPreview` component that accepts width, height, and unit as props
+- Component should render an SVG-based preview with intelligent scaling
+- Preview must update in real-time (<100ms) as dimension inputs change
+- No page refresh or button clicks required for updates
+
+### 2. Scaling Algorithm
+- Implement proportional scaling based on aspect ratio (width/height)
+- Use 220x220 viewBox with maximum sign size of 160 units
+- Maintain minimum dimensions of 28 units for readability
+- Center preview dynamically within the viewBox
+- Support both landscape and portrait orientations
+
+### 3. Visual Elements
+- **Central Labels**: Display "width × height unit" in sign center
+- **Dimension Guides**: Render dashed guide lines for width (bottom) and height (right)
+- **External Labels**: Show dimension measurements on guide lines
+- **Rounded Corners**: Modern aesthetic with 8px border radius
+- **Smooth Transitions**: 200ms ease-out animations for dimension changes
+- **Professional Styling**: Use brand colors (primary blue #1E3A8A)
+
+### 4. Number Formatting
+- Implement clean number formatting using Intl.NumberFormat
+- Remove unnecessary decimal places
+- Maintain up to 2 decimal places when needed
+- Ensure consistent display across all labels
+
+### 5. User Experience
+- Immediate visual feedback as users type
+- Clear visualization of sign proportions
+- Professional appearance suitable for customer presentations
+- Works seamlessly with existing form controls
+
+## Technical Specifications
+
+### Component Structure
+```typescript
+function SignPreview({ width, height, unit }):
+  - Validates dimensions (width > 0 && height > 0)
+  - Calculates aspect ratio
+  - Determines optimal scaling
+  - Renders SVG with guides and labels
+```
+
+### Integration Points
+- Integrate into existing QuoteWizard Step 1 (Details)
+- Replace static preview placeholder
+- Maintain compatibility with pricing calculations
+- Preserve all existing form functionality
+
+### Performance Requirements
+- Lightweight SVG rendering (no canvas overhead)
+- Efficient React reconciliation
+- No additional network requests
+- Minimal computational overhead
+
+## Success Criteria
+- ✅ Preview updates in real-time without lag
+- ✅ Accurate dimension scaling and proportions
+- ✅ Clear, readable labels at all dimension ranges
+- ✅ Smooth visual transitions
+- ✅ No regression in existing functionality
+- ✅ Works across all modern browsers
+
+## Implementation Tasks
+
+### Phase 1: Component Development
+1. Create SignPreview component with props interface
+2. Implement scaling algorithm
+3. Add SVG rendering with dimension guides
+4. Implement number formatting utility
+5. Add smooth transitions with CSS
+
+### Phase 2: Integration
+1. Replace existing preview in QuoteWizard
+2. Pass dimension props from form state
+3. Test real-time updates
+4. Verify pricing calculations still work
+
+### Phase 3: Polish & Testing
+1. Test various dimension inputs
+2. Verify aspect ratio handling
+3. Test smooth transitions
+4. Cross-browser compatibility testing
+5. Performance optimization if needed
+
+### Phase 4: Documentation
+1. Document component API
+2. Create implementation summary
+3. List potential enhancements
+4. Provide follow-up recommendations
+
+## Future Enhancements
+- Unit conversion display (show both inches and feet)
+- Scale reference indicator
+- Support for different sign shapes (circle, triangle)
+- Material color preview
+- Measurement grid background
+- 3D perspective view
+- Actual-size print preview
+
+## Technical Stack
+- React 18+ with TypeScript
+- SVG for rendering
+- styled-components for styling
+- Existing form state management
+
+## Browser Support
+- Chrome 90+
+- Firefox 88+
+- Safari 14+
+- Edge 90+
+
+## Dependencies
+- No new external dependencies required
+- Uses standard browser APIs
+- React built-in features only

@@ -1,0 +1,223 @@
+# Task ID: 6
+# Title: Implement Contacts List View Page
+# Status: pending
+# Dependencies: 2, 3, 5
+# Priority: high
+# Description: Create a page component that integrates the ContactsList component with the BaseLayout, implements routing, and handles data fetching from localStorage to display contacts in a table layout with pagination, search, and filtering.
+# Details:
+This task involves implementing the Contacts List View page that will serve as the main entry point for the Contacts module:
+
+1. Create a new page component at `app/contacts/page.tsx`:
+   ```tsx
+   import { Suspense } from 'react';
+   import { BaseLayout } from '@/components/layout';
+   import { ContactsList } from '@/components/contacts';
+   import { LoadingSpinner, EmptyState } from '@/components/shared';
+   
+   export default function ContactsPage() {
+     return (
+       <BaseLayout title="Contacts" description="Manage your contacts">
+         <div className="px-4 sm:px-6 lg:px-8 py-6">
+           <div className="sm:flex sm:items-center mb-6">
+             <div className="sm:flex-auto">
+               <h1 className="text-xl font-semibold text-gray-900">Contacts</h1>
+               <p className="mt-2 text-sm text-gray-700">
+                 A list of all contacts in your account including their name, email, phone, and status.
+               </p>
+             </div>
+             <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+               <button
+                 type="button"
+                 className="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto"
+               >
+                 Add contact
+               </button>
+             </div>
+           </div>
+           
+           <Suspense fallback={<LoadingSpinner />}>
+             <ContactsList />
+           </Suspense>
+         </div>
+       </BaseLayout>
+     );
+   }
+   ```
+
+2. Implement a mock data service for contacts in `lib/services/contactsService.ts`:
+   ```tsx
+   import { Contact } from '@/lib/types';
+   
+   // Generate mock data if none exists
+   const initializeContactsData = (): Contact[] => {
+     const existingData = localStorage.getItem('contacts');
+     if (existingData) {
+       return JSON.parse(existingData);
+     }
+     
+     // Generate 50 mock contacts
+     const mockContacts: Contact[] = Array.from({ length: 50 }, (_, i) => ({
+       id: `contact-${i + 1}`,
+       firstName: `FirstName${i + 1}`,
+       lastName: `LastName${i + 1}`,
+       email: `contact${i + 1}@example.com`,
+       phone: `+1 (555) ${100 + i}-${1000 + i}`,
+       company: i % 3 === 0 ? `Company ${Math.floor(i / 3)}` : undefined,
+       status: ['active', 'inactive', 'lead'][i % 3],
+       tags: i % 2 === 0 ? ['customer'] : ['prospect'],
+       createdAt: new Date(Date.now() - (i * 86400000)).toISOString(),
+     }));
+     
+     localStorage.setItem('contacts', JSON.stringify(mockContacts));
+     return mockContacts;
+   };
+   
+   export const getContacts = async (
+     page = 1,
+     limit = 10,
+     search = '',
+     filters = {}
+   ): Promise<{ data: Contact[], total: number }> => {
+     // Simulate network delay
+     await new Promise(resolve => setTimeout(resolve, 500));
+     
+     let contacts = initializeContactsData();
+     
+     // Apply search
+     if (search) {
+       const searchLower = search.toLowerCase();
+       contacts = contacts.filter(contact => 
+         contact.firstName.toLowerCase().includes(searchLower) ||
+         contact.lastName.toLowerCase().includes(searchLower) ||
+         contact.email.toLowerCase().includes(searchLower) ||
+         contact.phone.includes(search)
+       );
+     }
+     
+     // Apply filters
+     if (filters) {
+       Object.entries(filters).forEach(([key, value]) => {
+         if (value) {
+           contacts = contacts.filter(contact => contact[key] === value);
+         }
+       });
+     }
+     
+     // Calculate pagination
+     const total = contacts.length;
+     const startIndex = (page - 1) * limit;
+     const paginatedContacts = contacts.slice(startIndex, startIndex + limit);
+     
+     return { data: paginatedContacts, total };
+   };
+   ```
+
+3. Update the ContactsList component to use the contactsService:
+   ```tsx
+   // In ContactsList.tsx, add:
+   import { getContacts } from '@/lib/services/contactsService';
+   
+   // Then in the component:
+   const [contacts, setContacts] = useState<Contact[]>([]);
+   const [loading, setLoading] = useState(true);
+   const [total, setTotal] = useState(0);
+   const [page, setPage] = useState(1);
+   const [search, setSearch] = useState('');
+   const [filters, setFilters] = useState({});
+   
+   useEffect(() => {
+     const fetchContacts = async () => {
+       setLoading(true);
+       try {
+         const result = await getContacts(page, 10, search, filters);
+         setContacts(result.data);
+         setTotal(result.total);
+       } catch (error) {
+         console.error('Error fetching contacts:', error);
+       } finally {
+         setLoading(false);
+       }
+     };
+     
+     fetchContacts();
+   }, [page, search, filters]);
+   ```
+
+4. Ensure the routing is properly set up in `app/contacts/layout.tsx` (if needed):
+   ```tsx
+   export default function ContactsLayout({
+     children,
+   }: {
+     children: React.ReactNode;
+   }) {
+     return children;
+   }
+   ```
+
+5. Add a loading state component at `app/contacts/loading.tsx`:
+   ```tsx
+   import { LoadingSpinner } from '@/components/shared';
+   import { BaseLayout } from '@/components/layout';
+   
+   export default function Loading() {
+     return (
+       <BaseLayout title="Contacts" description="Manage your contacts">
+         <div className="flex items-center justify-center h-64">
+           <LoadingSpinner size="large" />
+         </div>
+       </BaseLayout>
+     );
+   }
+   ```
+
+# Test Strategy:
+To verify the correct implementation of the Contacts List View page:
+
+1. Page Component Verification:
+   - Confirm the page component exists in the correct location:
+     ```bash
+     ls -la app/contacts/page.tsx
+     ```
+   - Verify the loading component exists:
+     ```bash
+     ls -la app/contacts/loading.tsx
+     ```
+
+2. Functional Testing:
+   - Navigate to the `/contacts` route in the browser
+   - Verify the page loads without errors
+   - Confirm the page title and description are displayed correctly
+   - Check that the "Add contact" button is visible
+
+3. Data Loading and Display:
+   - Verify that mock contact data is displayed in the table
+   - Confirm that pagination controls appear and show the correct total number of contacts
+   - Check that the loading spinner appears briefly when the page first loads
+
+4. Search and Filter Functionality:
+   - Test the search functionality by entering a contact name or email
+   - Verify that the results update accordingly
+   - Test filters (if implemented) to ensure they correctly filter the data
+   - Confirm that combining search with filters works as expected
+
+5. Pagination Testing:
+   - Navigate through different pages using the pagination controls
+   - Verify that the correct set of contacts is displayed for each page
+   - Check that the current page indicator updates correctly
+
+6. LocalStorage Integration:
+   - Open browser developer tools and check the localStorage:
+     ```javascript
+     JSON.parse(localStorage.getItem('contacts'))
+     ```
+   - Verify that mock data is properly stored in localStorage
+   - Try clearing localStorage and refreshing to confirm data is regenerated
+
+7. Responsive Design Testing:
+   - Test the page on different viewport sizes (mobile, tablet, desktop)
+   - Verify that the layout adjusts appropriately
+   - Confirm that all controls remain accessible and usable on smaller screens
+
+8. Integration Testing:
+   - Verify that clicking on the Contacts tab in the navigation correctly routes to this page
+   - Check that the BaseLayout is properly integrated with the page content

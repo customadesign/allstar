@@ -1,0 +1,200 @@
+# Task ID: 4
+# Title: Create shared UI components for reusable elements
+# Status: pending
+# Dependencies: 1
+# Priority: high
+# Description: Build a set of reusable UI components in the components/shared/ directory including SearchBar, StatusBadge, TagPills, Pagination, EmptyState, LoadingSpinner, and ConfirmDialog components with TypeScript interfaces and Tailwind CSS styling.
+# Details:
+This task involves creating a suite of reusable UI components that will be used across the Contacts and Companies modules:
+
+1. Create the following components in the `components/shared/` directory:
+
+   a. **SearchBar.tsx**:
+   ```tsx
+   interface SearchBarProps {
+     placeholder?: string;
+     initialValue?: string;
+     onSearch: (value: string) => void;
+     className?: string;
+   }
+   
+   export default function SearchBar({ placeholder = 'Search...', initialValue = '', onSearch, className = '' }: SearchBarProps) {
+     // Implementation with search input and icon button
+     // Should handle controlled input with onChange and form submission
+   }
+   ```
+
+   b. **StatusBadge.tsx**:
+   ```tsx
+   interface StatusBadgeProps {
+     status: 'active' | 'inactive' | 'pending' | 'archived' | string;
+     className?: string;
+   }
+   
+   export default function StatusBadge({ status, className = '' }: StatusBadgeProps) {
+     // Implementation with different colors based on status
+     // Should handle custom statuses gracefully
+   }
+   ```
+
+   c. **TagPills.tsx**:
+   ```tsx
+   interface TagPillProps {
+     label: string;
+     onRemove?: () => void;
+     color?: string;
+     className?: string;
+   }
+   
+   export default function TagPill({ label, onRemove, color = 'gray', className = '' }: TagPillProps) {
+     // Implementation with pill styling and optional remove button
+   }
+   
+   interface TagPillsProps {
+     tags: string[];
+     onRemove?: (tag: string) => void;
+     className?: string;
+   }
+   
+   export function TagPills({ tags, onRemove, className = '' }: TagPillsProps) {
+     // Implementation that renders multiple TagPill components
+   }
+   ```
+
+   d. **Pagination.tsx**:
+   ```tsx
+   interface PaginationProps {
+     currentPage: number;
+     totalPages: number;
+     onPageChange: (page: number) => void;
+     className?: string;
+   }
+   
+   export default function Pagination({ currentPage, totalPages, onPageChange, className = '' }: PaginationProps) {
+     // Implementation with previous/next buttons and page numbers
+     // Should handle edge cases (first/last page)
+   }
+   ```
+
+   e. **EmptyState.tsx**:
+   ```tsx
+   interface EmptyStateProps {
+     title: string;
+     description?: string;
+     icon?: React.ReactNode;
+     action?: React.ReactNode;
+     className?: string;
+   }
+   
+   export default function EmptyState({ title, description, icon, action, className = '' }: EmptyStateProps) {
+     // Implementation with centered content, icon, and optional action button
+   }
+   ```
+
+   f. **LoadingSpinner.tsx**:
+   ```tsx
+   interface LoadingSpinnerProps {
+     size?: 'sm' | 'md' | 'lg';
+     className?: string;
+   }
+   
+   export default function LoadingSpinner({ size = 'md', className = '' }: LoadingSpinnerProps) {
+     // Implementation with animated spinner using Tailwind CSS
+   }
+   ```
+
+   g. **ConfirmDialog.tsx**:
+   ```tsx
+   interface ConfirmDialogProps {
+     isOpen: boolean;
+     onClose: () => void;
+     onConfirm: () => void;
+     title: string;
+     message?: string;
+     confirmText?: string;
+     cancelText?: string;
+     variant?: 'danger' | 'warning' | 'info';
+   }
+   
+   export default function ConfirmDialog({ 
+     isOpen, 
+     onClose, 
+     onConfirm, 
+     title, 
+     message, 
+     confirmText = 'Confirm', 
+     cancelText = 'Cancel', 
+     variant = 'danger' 
+   }: ConfirmDialogProps) {
+     // Implementation with modal dialog, backdrop, and action buttons
+     // Should handle keyboard events (Escape to close, Enter to confirm)
+   }
+   ```
+
+2. Ensure all components:
+   - Use TypeScript interfaces for props
+   - Implement responsive design with Tailwind CSS
+   - Follow accessibility best practices (proper ARIA attributes, keyboard navigation)
+   - Include default prop values where appropriate
+   - Handle edge cases gracefully
+
+3. Create an index.ts file to export all components:
+   ```tsx
+   export { default as SearchBar } from './SearchBar';
+   export { default as StatusBadge } from './StatusBadge';
+   export { default as TagPill, TagPills } from './TagPills';
+   export { default as Pagination } from './Pagination';
+   export { default as EmptyState } from './EmptyState';
+   export { default as LoadingSpinner } from './LoadingSpinner';
+   export { default as ConfirmDialog } from './ConfirmDialog';
+   ```
+
+4. Follow existing project patterns for:
+   - Component naming conventions
+   - File structure
+   - Styling approach with Tailwind
+   - Error handling
+   - Prop validation
+
+# Test Strategy:
+To verify the correct implementation of the shared UI components:
+
+1. Component File Verification:
+   - Confirm all seven component files exist in the components/shared/ directory:
+     ```bash
+     ls -la components/shared/SearchBar.tsx components/shared/StatusBadge.tsx components/shared/TagPills.tsx components/shared/Pagination.tsx components/shared/EmptyState.tsx components/shared/LoadingSpinner.tsx components/shared/ConfirmDialog.tsx components/shared/index.ts
+     ```
+   - Verify each file contains the correct TypeScript interfaces and component implementations
+
+2. Component Rendering Tests:
+   - Create a test page that imports and renders each component with various prop combinations
+   - Verify that each component renders without errors
+   - Check that components respond correctly to different prop values
+
+3. Visual Verification:
+   - Verify that all components follow the project's design system and Tailwind styling
+   - Check responsive behavior by testing at different viewport sizes
+   - Ensure consistent styling across components
+
+4. Functionality Testing:
+   - Test SearchBar by entering text and triggering the search function
+   - Test StatusBadge with different status values
+   - Test TagPills with and without the remove functionality
+   - Test Pagination by changing pages and handling edge cases
+   - Test EmptyState with different content configurations
+   - Test LoadingSpinner at different sizes
+   - Test ConfirmDialog by opening, canceling, and confirming
+
+5. Accessibility Testing:
+   - Verify keyboard navigation works for interactive components
+   - Check that proper ARIA attributes are applied
+   - Test with a screen reader to ensure components are accessible
+
+6. Integration Testing:
+   - Import components into a test page that simulates their usage in the Contacts and Companies modules
+   - Verify they work correctly in the context of the application
+
+7. Code Review:
+   - Ensure TypeScript types are correctly defined and used
+   - Verify Tailwind classes follow project conventions
+   - Check that components handle edge cases and error states appropriately

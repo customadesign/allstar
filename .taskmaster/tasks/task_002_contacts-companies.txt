@@ -1,0 +1,68 @@
+# Task ID: 2
+# Title: Update BaseLayout navigation to include Contacts and Companies tabs
+# Status: pending
+# Dependencies: 1
+# Priority: high
+# Description: Modify the BaseLayout component to add navigation items for Contacts and Companies, ensuring they link to the correct routes and maintain consistent styling in both desktop and mobile views.
+# Details:
+This task involves updating the navigation menu in the BaseLayout component to include new tabs for the Contacts and Companies modules:
+
+1. Locate and open the file `components/layout/BaseLayout.tsx`
+
+2. Find the navigation array/configuration (likely named `navItems`, `navigationLinks`, or similar)
+
+3. Add two new navigation items in an appropriate position:
+   ```tsx
+   // Example addition to navigation array
+   {
+     name: 'Contacts',
+     href: '/contacts',
+     icon: ContactsIcon, // Use an appropriate icon from your icon library
+   },
+   {
+     name: 'Companies',
+     href: '/companies',
+     icon: BuildingOfficeIcon, // Use an appropriate icon from your icon library
+   }
+   ```
+
+4. Ensure the navigation items are properly ordered according to the application's information architecture (typically: Dashboard, Contacts, Companies, etc.)
+
+5. Verify that the mobile menu implementation also includes these new navigation items
+   - Check if there's a separate array for mobile navigation or if it reuses the main navigation
+   - If separate, add the same items to the mobile navigation array
+
+6. Apply consistent styling by following existing patterns:
+   - Maintain the same component structure for each navigation item
+   - Use the same styling props and classes
+   - Ensure active state styling works correctly for the new routes
+
+7. If there are any navigation-related tests, update them to include the new navigation items
+
+8. Check for any hardcoded navigation counts or references that might need updating
+
+# Test Strategy:
+To verify the correct implementation of this task:
+
+1. Visual Inspection:
+   - Open the application in a browser
+   - Verify that the Contacts and Companies tabs appear in the navigation bar
+   - Confirm they are properly positioned in the navigation order
+   - Check that they use consistent styling with other navigation items
+
+2. Functionality Testing:
+   - Click on the Contacts tab and verify it navigates to `/contacts`
+   - Click on the Companies tab and verify it navigates to `/companies`
+   - Test the active state styling by navigating to each route and confirming the correct tab is highlighted
+
+3. Responsive Testing:
+   - Resize the browser to mobile viewport dimensions
+   - Verify that the mobile menu includes the new Contacts and Companies items
+   - Test navigation functionality in the mobile view
+
+4. Code Review:
+   - Confirm that the navigation array structure is maintained
+   - Verify that appropriate icons are used for the new navigation items
+   - Check that no styling inconsistencies were introduced
+
+5. Run any existing navigation or layout tests to ensure nothing was broken

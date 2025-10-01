@@ -1,0 +1,268 @@
+# Task ID: 7
+# Title: Implement Contact Detail Page
+# Status: pending
+# Dependencies: 2, 3, 6
+# Priority: high
+# Description: Create a page component that displays detailed information for a single contact, including full profile information, company link, activity history, notes section, and action buttons for editing and deleting the contact.
+# Details:
+This task involves implementing the Contact Detail page that will display comprehensive information about a single contact:
+
+1. Create a new page component at `app/contacts/[id]/page.tsx`:
+   ```tsx
+   import { Suspense } from 'react';
+   import { BaseLayout } from '@/components/layout';
+   import { ContactDetail } from '@/components/contacts';
+   import { LoadingSpinner, EmptyState } from '@/components/shared';
+   
+   export default function ContactDetailPage({ params }: { params: { id: string } }) {
+     return (
+       <BaseLayout title="Contact Details" backLink="/contacts">
+         <Suspense fallback={<LoadingSpinner />}>
+           <ContactDetail contactId={params.id} />
+         </Suspense>
+       </BaseLayout>
+     );
+   }
+   ```
+
+2. Create a new component at `components/contacts/ContactDetail.tsx`:
+   ```tsx
+   import { useState, useEffect } from 'react';
+   import { useRouter } from 'next/navigation';
+   import { StatusBadge, TagPills, ConfirmDialog } from '@/components/shared';
+   
+   interface ContactDetailProps {
+     contactId: string;
+   }
+   
+   export function ContactDetail({ contactId }: ContactDetailProps) {
+     const router = useRouter();
+     const [contact, setContact] = useState<Contact | null>(null);
+     const [loading, setLoading] = useState(true);
+     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+     
+     useEffect(() => {
+       // Fetch contact data from localStorage
+       const fetchContact = () => {
+         setLoading(true);
+         try {
+           const storedContacts = JSON.parse(localStorage.getItem('contacts') || '[]');
+           const foundContact = storedContacts.find((c: Contact) => c.id === contactId);
+           setContact(foundContact || null);
+         } catch (error) {
+           console.error('Error fetching contact:', error);
+         } finally {
+           setLoading(false);
+         }
+       };
+       
+       fetchContact();
+     }, [contactId]);
+     
+     const handleDelete = () => {
+       try {
+         const storedContacts = JSON.parse(localStorage.getItem('contacts') || '[]');
+         const updatedContacts = storedContacts.filter((c: Contact) => c.id !== contactId);
+         localStorage.setItem('contacts', JSON.stringify(updatedContacts));
+         router.push('/contacts');
+       } catch (error) {
+         console.error('Error deleting contact:', error);
+       }
+     };
+     
+     if (loading) return <LoadingSpinner />;
+     if (!contact) return <EmptyState message="Contact not found" />;
+     
+     return (
+       <div className="bg-white shadow rounded-lg">
+         {/* Header section with actions */}
+         <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+           <h1 className="text-2xl font-bold text-gray-900">
+             {contact.firstName} {contact.lastName}
+           </h1>
+           <div className="flex space-x-2">
+             <button 
+               onClick={() => router.push(`/contacts/${contactId}/edit`)}
+               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+             >
+               Edit
+             </button>
+             <button 
+               onClick={() => setShowDeleteDialog(true)}
+               className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+             >
+               Delete
+             </button>
+           </div>
+         </div>
+         
+         {/* Contact information */}
+         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
+           {/* Left column - Basic info */}
+           <div className="col-span-2 space-y-6">
+             <div className="grid grid-cols-2 gap-4">
+               <div>
+                 <h3 className="text-sm font-medium text-gray-500">Email</h3>
+                 <p className="mt-1 text-sm text-gray-900">{contact.email}</p>
+               </div>
+               <div>
+                 <h3 className="text-sm font-medium text-gray-500">Phone</h3>
+                 <p className="mt-1 text-sm text-gray-900">{contact.phone}</p>
+               </div>
+               {contact.company && (
+                 <div>
+                   <h3 className="text-sm font-medium text-gray-500">Company</h3>
+                   <p className="mt-1 text-sm text-blue-600 hover:underline cursor-pointer">
+                     <a href={`/companies/${contact.companyId}`}>{contact.company}</a>
+                   </p>
+                 </div>
+               )}
+               <div>
+                 <h3 className="text-sm font-medium text-gray-500">Status</h3>
+                 <div className="mt-1">
+                   <StatusBadge status={contact.status} />
+                 </div>
+               </div>
+             </div>
+             
+             {/* Tags section */}
+             {contact.tags && contact.tags.length > 0 && (
+               <div>
+                 <h3 className="text-sm font-medium text-gray-500 mb-2">Tags</h3>
+                 <TagPills tags={contact.tags} />
+               </div>
+             )}
+             
+             {/* Notes section */}
+             <div>
+               <h3 className="text-sm font-medium text-gray-500 mb-2">Notes</h3>
+               <div className="bg-gray-50 p-4 rounded-md">
+                 {contact.notes ? (
+                   <p className="text-sm text-gray-700 whitespace-pre-wrap">{contact.notes}</p>
+                 ) : (
+                   <p className="text-sm text-gray-500 italic">No notes available</p>
+                 )}
+               </div>
+             </div>
+           </div>
+           
+           {/* Right column - Activity */}
+           <div className="col-span-1">
+             <h3 className="text-sm font-medium text-gray-500 mb-2">Recent Activity</h3>
+             <div className="bg-gray-50 p-4 rounded-md h-64 flex items-center justify-center">
+               <p className="text-sm text-gray-500 italic">Activity timeline coming soon</p>
+             </div>
+           </div>
+         </div>
+         
+         {/* Delete confirmation dialog */}
+         <ConfirmDialog
+           isOpen={showDeleteDialog}
+           title="Delete Contact"
+           message={`Are you sure you want to delete ${contact.firstName} ${contact.lastName}? This action cannot be undone.`}
+           confirmLabel="Delete"
+           cancelLabel="Cancel"
+           onConfirm={handleDelete}
+           onCancel={() => setShowDeleteDialog(false)}
+         />
+       </div>
+     );
+   }
+   ```
+
+3. Export the ContactDetail component from the contacts index file:
+   ```tsx
+   // components/contacts/index.ts
+   export * from './ContactsList';
+   export * from './ContactDetail';
+   ```
+
+4. Update the Contact interface in `lib/types/contacts.ts` if needed to ensure it includes all fields required for the detail view:
+   ```tsx
+   export interface Contact {
+     id: string;
+     firstName: string;
+     lastName: string;
+     email: string;
+     phone: string;
+     company?: string;
+     companyId?: string;
+     status: 'active' | 'inactive' | 'lead';
+     tags?: string[];
+     notes?: string;
+     createdAt: string;
+     updatedAt: string;
+   }
+   ```
+
+5. Ensure the mock data in localStorage includes all the necessary fields for a comprehensive contact detail view.
+
+# Test Strategy:
+To verify the correct implementation of the Contact Detail page:
+
+1. Page Component Verification:
+   - Confirm the page component exists in the correct location:
+     ```bash
+     ls -la app/contacts/[id]/page.tsx
+     ```
+   - Verify the ContactDetail component exists:
+     ```bash
+     ls -la components/contacts/ContactDetail.tsx
+     ```
+   - Check that the ContactDetail component is properly exported from the index file:
+     ```bash
+     grep -n "export.*ContactDetail" components/contacts/index.ts
+     ```
+
+2. Functionality Testing:
+   - Add mock contact data to localStorage if not already present:
+     ```javascript
+     localStorage.setItem('contacts', JSON.stringify([
+       {
+         id: '1',
+         firstName: 'John',
+         lastName: 'Doe',
+         email: 'john.doe@example.com',
+         phone: '(555) 123-4567',
+         company: 'Acme Inc',
+         companyId: '1',
+         status: 'active',
+         tags: ['client', 'tech'],
+         notes: 'Met at conference in March. Interested in our enterprise solution.',
+         createdAt: '2023-01-15T12:00:00Z',
+         updatedAt: '2023-03-20T15:30:00Z'
+       }
+     ]));
+     ```
+   - Navigate to the contact detail page by visiting `/contacts/1` in the browser
+   - Verify that all contact information is displayed correctly:
+     - Name in the header
+     - Email, phone, and other basic information
+     - Company name with a clickable link
+     - Status badge with correct styling
+     - Tags displayed as pills
+     - Notes section with formatted text
+     - Placeholder for activity timeline
+
+3. UI/UX Testing:
+   - Test responsive layout by resizing the browser window:
+     - Verify the layout adjusts appropriately for mobile, tablet, and desktop views
+   - Verify that the Edit button navigates to the correct URL (`/contacts/1/edit`)
+   - Test the Delete functionality:
+     - Click the Delete button
+     - Verify the confirmation dialog appears with the correct contact name
+     - Cancel the deletion and verify the dialog closes without changes
+     - Confirm the deletion and verify:
+       - The contact is removed from localStorage
+       - The user is redirected to the contacts list page
+
+4. Error Handling Testing:
+   - Test with an invalid contact ID (e.g., `/contacts/999`)
+   - Verify that an appropriate "Contact not found" message is displayed
+   - Verify that the loading state works correctly by artificially delaying data loading
+
+5. Integration Testing:
+   - Verify that the BaseLayout is properly applied with:
+     - Correct page title
+     - Back button that navigates to the contacts list
+     - Consistent styling with other pages

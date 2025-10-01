@@ -1,0 +1,105 @@
+# Task ID: 1
+# Title: Set up project structure for Contacts and Companies modules
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Create the foundational directory structure for the Contacts and Companies modules, establish TypeScript interfaces, and install required dependencies for form handling, validation, notifications, and file uploads.
+# Details:
+This task involves setting up the core project structure to support Contacts and Companies modules:
+
+1. Create the following directory structure:
+   - `app/contacts/` - For Contact-related pages and routes
+   - `app/companies/` - For Company-related pages and routes
+   - `components/contacts/` - For Contact-specific components
+   - `components/companies/` - For Company-specific components
+   - `components/shared/` - For reusable components across modules
+   - `lib/types/` - For TypeScript interfaces and type definitions
+   - `lib/services/` - For API and service functions
+   - `lib/utils/` - For utility functions
+   - `lib/hooks/` - For custom React hooks
+
+2. Set up base TypeScript interfaces in `lib/types/`:
+   ```typescript
+   // lib/types/contact.ts
+   export interface Contact {
+     id?: string;
+     firstName: string;
+     lastName: string;
+     email: string;
+     phone?: string;
+     companyId?: string;
+     notes?: string;
+     createdAt?: Date;
+     updatedAt?: Date;
+   }
+   
+   // lib/types/company.ts
+   export interface Company {
+     id?: string;
+     name: string;
+     industry?: string;
+     website?: string;
+     address?: string;
+     employees?: number;
+     notes?: string;
+     createdAt?: Date;
+     updatedAt?: Date;
+   }
+   ```
+
+3. Install required dependencies:
+   ```bash
+   npm install react-hook-form zod react-hot-toast react-dropzone
+   # or
+   yarn add react-hook-form zod react-hot-toast react-dropzone
+   ```
+
+4. Create index files in each directory to facilitate imports:
+   ```typescript
+   // Example: lib/types/index.ts
+   export * from './contact';
+   export * from './company';
+   ```
+
+5. Add a README.md in each directory explaining its purpose and usage guidelines.
+
+This structure will provide a solid foundation for building out the Contacts and Companies modules with proper separation of concerns and type safety.
+
+# Test Strategy:
+To verify the correct implementation of this task:
+
+1. Directory Structure Verification:
+   - Run a script or manually check that all specified directories exist:
+     ```bash
+     ls -la app/contacts/ app/companies/ components/contacts/ components/companies/ components/shared/ lib/types/ lib/services/ lib/utils/ lib/hooks/
+     ```
+   - Ensure each directory has appropriate permissions and is accessible.
+
+2. TypeScript Interface Verification:
+   - Validate that the Contact and Company interfaces exist in the correct location.
+   - Run TypeScript compiler to check for any type errors:
+     ```bash
+     npx tsc --noEmit
+     ```
+   - Attempt to import the types in a test file to ensure they're properly exported:
+     ```typescript
+     import { Contact, Company } from '@/lib/types';
+     ```
+
+3. Dependencies Installation Verification:
+   - Check package.json to confirm all required dependencies are listed with appropriate versions.
+   - Run `npm list` or `yarn list` to verify the dependencies are installed.
+   - Create a simple test component that imports and uses each dependency to ensure they're working:
+     ```typescript
+     import { useForm } from 'react-hook-form';
+     import { z } from 'zod';
+     import toast from 'react-hot-toast';
+     import { useDropzone } from 'react-dropzone';
+     ```
+
+4. Project Structure Documentation:
+   - Verify README.md files exist in each directory with appropriate documentation.
+   - Ensure index files are properly exporting the necessary types and components.
+
+5. Git Status Check:
+   - Run `git status` to ensure all new files are tracked and ready to be committed.
