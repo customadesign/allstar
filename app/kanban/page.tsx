@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, Suspense } from 'react';
 import KanbanBoard from '@/components/kanban/KanbanBoard';
 import KanbanStackView from '@/components/kanban/KanbanStackView';
 import ViewSwitcher from '@/components/kanban/ViewSwitcher';
@@ -148,13 +148,15 @@ export default function KanbanPage() {
         </div>
 
         {/* Kanban Views */}
-        {currentView === 'board' && <KanbanBoard cards={filteredCards} />}
-        {currentView === 'stack' && <KanbanStackView cards={filteredCards} />}
-        {currentView === 'card' && (
-          <div className="text-center py-12 text-gray-500">
-            Card View - Coming Soon
-          </div>
-        )}
+        <Suspense fallback={<div className="text-center py-12">Loading...</div>}>
+          {currentView === 'board' && <KanbanBoard cards={filteredCards} />}
+          {currentView === 'stack' && <KanbanStackView cards={filteredCards} />}
+          {currentView === 'card' && (
+            <div className="text-center py-12 text-gray-500">
+              Card View - Coming Soon
+            </div>
+          )}
+        </Suspense>
       </div>
     </div>
   );
